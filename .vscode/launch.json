@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - TelaUnica",
+            "request": "launch",
+            "mainClass": "Tela.TelaUnica",
+            "projectName": "Compilador"
+        }
+    ]
+}
