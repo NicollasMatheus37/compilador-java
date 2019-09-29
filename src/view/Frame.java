@@ -112,6 +112,7 @@ public class Frame extends JFrame {
 		btnAbrirArquivo.setBackground(SystemColor.menu);
 		btnAbrirArquivo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 				JFileChooser chooser = new JFileChooser();
 				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 				chooser.setCurrentDirectory(new File("Documentos"));
@@ -136,24 +137,31 @@ public class Frame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				JFileChooser chooser = new JFileChooser();
-				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				chooser.setCurrentDirectory(new File("Desktop"));
+				chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				chooser.setCurrentDirectory(new File("Documentos"));
 				fontCode = areaDeCodigo.getText();
-				
+
 				if(fontCode.isEmpty()) {
 					JOptionPane.showMessageDialog(null,"O campo de texto esta vazio");
-				} else {
-					String fileName = JOptionPane.showInputDialog("Informe o nome do arquivo");
-					try {
-						new ManipuladorArquivos().GravaArquivo(fontCode, fileName,chooser.getSelectedFile().getPath());
-					} catch (FileNotFoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+					
+				}else {
+					
+					if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+						String fileName = JOptionPane.showInputDialog("Informe o nome do arquivo");
+						
+						try {
+							new ManipuladorArquivos().GravaArquivo(fontCode, fileName,chooser.getSelectedFile().getPath());
+							
+						} catch (FileNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}						
 					}
 				}
+
 			}
 		});
 		btnSalvar.setBackground(SystemColor.menu);
