@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.text.Normalizer;
 import java.util.Stack;
 
 
@@ -18,7 +19,7 @@ public class AnalizadorLexico {
 	Reader reader;
 	BufferedReader bufferedReader;
 	
-	boolean isComentario = false, isLiteral = false, isNegativo = false, isPalavra = false, isNumero = false;
+	boolean isComentario = false, isLiteral = false, isPalavra = false, isNumero = false;
 	int linhaComentario = 0, linhaLiteral = 0, tamComentario = 0;
 	
 	int numLinha = 0;
@@ -51,7 +52,8 @@ public class AnalizadorLexico {
 				erros.push(
 						(new Erros())
 							.setTitulo("Erro léxico")
-							.setMensagem("Literal com mais de uma linha"));
+							.setMensagem("Não fechamento de literal na linha ")
+							.setLinha(linhaLiteral));
 			}
 			
 			
@@ -64,6 +66,15 @@ public class AnalizadorLexico {
 					charProx = caracteres [i + 1];
 				} catch (Exception e) {
 					e.getStackTrace();
+				}
+				
+				// acentuacao
+				if(!isLiteral && !isComentario && caracterComAcentuacao(charAtual)) {
+					erros.push(
+							(new Erros())
+								.setTitulo("Erro léxico")
+								.setMensagem("Caracter inválido na linha ")
+								.setLinha(numLinha));
 				}
 				
 				//comentarios
@@ -104,20 +115,9 @@ public class AnalizadorLexico {
 				
 				//verifica simbolo '-'
 				if(charAtual == '-' && isNumero(charProx)) {
-					isNegativo = true;
+					isNumero = true;
 					palavra += charAtual + charProx;
 					i++;
-					continue;
-				} else if(isNegativo && isNumero(charAtual)) {
-					palavra += charAtual;
-					continue;
-				} else if(isNegativo && !isNumero(charAtual)) {
-					token.setCodigo(26) // codigo de inteiro
-						.setValor(palavra)
-						.setNumLinha(i);
-					tokenStack.push(token);
-					isNegativo = false;
-					palavra = "";
 					continue;
 				}
 				
@@ -130,16 +130,26 @@ public class AnalizadorLexico {
 					palavra += charAtual;
 					continue;
 				} else if(isNumero && !isNumero(charAtual)) {
-					if(Double.parseDouble(palavra) > -32768 && Double.parseDouble(palavra) < 32768) {
+					if(charAtual == '.') {
+						erros.push(
+								(new Erros())
+									.setTitulo("Erro léxico")
+									.setMensagem("Numeros de ponto flutuante na linha ")
+									.setLinha(numLinha));
+					} else if(Double.parseDouble(palavra) > -32768 && Double.parseDouble(palavra) < 32768) {
 						token.setCodigo(26) // codigo de inteiro
 						.setValor(palavra)
 						.setNumLinha(i);
 						tokenStack.push(token);
-						isNegativo = false;
+						isNumero = false;
 						palavra = "";
 						continue;						
-					} else {
-						// error
+					} else if(Double.parseDouble(palavra) <= -32768 || Double.parseDouble(palavra) >= 32768) {
+						erros.push(
+								(new Erros())
+									.setTitulo("Erro léxico")
+									.setMensagem("Inteiro fora dos valores aceitos na linha ")
+									.setLinha(numLinha));
 					}
 				}
 				
@@ -223,6 +233,14 @@ public class AnalizadorLexico {
 	
 	private boolean isNumero(char caracter) {
 		if(caracter >= '0' && caracter <= '9') {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean caracterComAcentuacao(char caracter) {
+		String acentos = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ";
+		if(acentos.contains("" + caracter)) {
 			return true;
 		}
 		return false;

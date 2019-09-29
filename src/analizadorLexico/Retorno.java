@@ -4,9 +4,9 @@ import java.util.Stack;
 
 public class Retorno {
 
-	public boolean isError = false;
-	public Stack<Erros> errorStack;
-	public Stack<Token> tokenStack;
+	private boolean isError = false;
+	private Stack<Erros> errorStack;
+	private Stack<Token> tokenStack;
 	
 	public boolean isError() {
 		return isError;
