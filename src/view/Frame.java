@@ -1,4 +1,4 @@
-package Tela;
+package view;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -18,7 +18,7 @@ import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class TelaUnica extends JFrame {
+public class Frame extends JFrame {
 
 	private JPanel contentPane;
 	private JList list;
@@ -37,7 +37,7 @@ public class TelaUnica extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TelaUnica frame = new TelaUnica();
+					Frame frame = new Frame();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -49,7 +49,7 @@ public class TelaUnica extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public TelaUnica() {
+	public Frame() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 826, 488);
 		contentPane = new JPanel();
