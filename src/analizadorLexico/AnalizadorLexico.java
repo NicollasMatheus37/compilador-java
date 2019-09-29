@@ -4,14 +4,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Stack;
 
 
 public class AnalizadorLexico {
 	
 	Token token = new Token();
-	Interpretador interpretador = new Interpretador();
+	ManipuladorArquivos interpretador = new ManipuladorArquivos();
 	SimbolosTerminais terminais = new SimbolosTerminais();
 	Stack<Token> tokenStack = new Stack<Token>();
 	Stack<Erros> erros = new Stack<Erros>();
@@ -30,11 +29,11 @@ public class AnalizadorLexico {
 	public AnalizadorLexico() {
 	}
 
-	public Retorno Analizar() throws FileNotFoundException, IOException {
+	public Retorno Analizar(String nomeArquivo) throws FileNotFoundException, IOException {
 		erros.clear();
 		tokenStack.clear();
 
-		String textoArquivo = (interpretador.lerArquivo()).toString();
+		String textoArquivo = (interpretador.lerArquivo(nomeArquivo)).toString();
 		Reader texto = new StringReader(textoArquivo);
 		
 		bufferedReader = new BufferedReader(texto);

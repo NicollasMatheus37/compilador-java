@@ -7,20 +7,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-public class Interpretador {
+public class ManipuladorArquivos {
 
-    private String path = "src\\arquivos\\EXEMPLOS_VALIDACAO_LMS.teste";
-    private String texto = "";
+    private String path = "src\\arquivos\\";
 
-    public void interpretar() throws FileNotFoundException, IOException {
-        this.GravaArquivo();
-    }
-
-    public void GravaArquivo() throws FileNotFoundException, IOException {
+    public void GravaArquivo(String texto, String nomeArquivo) throws FileNotFoundException, IOException {
+    	
         FileOutputStream arq = null;
         PrintStream ps = null;
+        
         try {
-            File f = new File(path);
+            File f = new File(path + nomeArquivo);
             arq = new FileOutputStream(f);
             try {
                 ps = new PrintStream(arq);
@@ -37,7 +34,7 @@ public class Interpretador {
         }
     }
 
-    public StringBuilder lerArquivo() throws FileNotFoundException, IOException {
+    public StringBuilder lerArquivo(String nomeArquivo) throws FileNotFoundException, IOException {
         StringBuilder result = new StringBuilder();
         FileInputStream arq = null;
         try {
