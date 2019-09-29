@@ -9,9 +9,8 @@ import java.io.PrintStream;
 
 public class ManipuladorArquivos {
 
-    private String path = "src\\arquivos\\";
 
-    public void GravaArquivo(String texto, String nomeArquivo) throws FileNotFoundException, IOException {
+    public void GravaArquivo(String texto, String nomeArquivo, String path) throws FileNotFoundException, IOException {
     	
         FileOutputStream arq = null;
         PrintStream ps = null;
@@ -34,7 +33,7 @@ public class ManipuladorArquivos {
         }
     }
 
-    public StringBuilder lerArquivo(String nomeArquivo) throws FileNotFoundException, IOException {
+    public StringBuilder lerArquivo(String path) throws FileNotFoundException, IOException {
         StringBuilder result = new StringBuilder();
         FileInputStream arq = null;
         try {
