@@ -50,7 +50,7 @@ public class AnalizadorLexico {
 			
 			char caracteres[] = linha.toCharArray();
 			
-			//tratamento de erro dos literais
+			//tratamento de erro literais com mais de uma linha
 			if(isLiteral) {
 				insertOnErrorStack("Não fechamento de literal na linha ", linhaLiteral);
 			}
@@ -66,114 +66,115 @@ public class AnalizadorLexico {
 					isUltimoCaracter = true;
 				}
 				
-				System.out.println(isUltimoCaracter ? "1" : "0");
-				
-				// acentuacao
+				//verifica se existe caracter com acentuacao fora do bloco de cometarios ou literais
 				if(!isLiteral && !isComentario && caracterComAcentuacao(charAtual)) {
 					insertOnErrorStack("Caracter inválido na linha ", numLinha);
 				}
 				
 				//comentarios
-				if(charAtual == '(' && charProx == '*' && !isComentario) {
+				if(charAtual == '(' && charProx == '*' && !isComentario) { //inicia comentário
 					isComentario = true;
 					linhaComentario = i;
+					i++;
 					continue;
-				} else if(charAtual == '*' && charProx == ')' && isComentario) {
+				} else if(charAtual == '*' && charProx == ')' && isComentario) { //fecha bloco de comentario
 					i += 2;
 					isComentario = false;
 					continue;
-				} else if(isComentario) {
+				} else if(isComentario) { //adiciona o bloco de comentário
 					tamComentario++;
 					continue;
 				}
 				
 				// verificação de literais
-				if(charAtual == '\'' && !isLiteral) {
+				if(charAtual == '\'' && !isLiteral) { //inicia bloco de literais
 					isLiteral = true;
 					linhaLiteral = numLinha;
 					palavra += charAtual;
-					continue;
-				} else if(charAtual != '\'' && isLiteral) {
+				} else if(charAtual != '\'' && isLiteral) { //adiciona no bloco de literais
 					palavra += charAtual;
-					continue;
-				} else if(charAtual == '\'' && isLiteral) {
+				} else if(charAtual == '\'' && isLiteral) { //fecha bloco de literais
 					palavra += charAtual;
-					insertOnTokenStack(48, palavra, numLinha); //insere literal
-					continue;
+					insertOnTokenStack(48, palavra, numLinha);
+					palavra = "";
 				}
 				
-				//verifica simbolo '-'
-				if(charAtual == '-' && isNumero(charProx)) {
-					isNumero = true;
-					palavra += charAtual + charProx;
-					i++;
-					continue;
-				}
-				
-				// verificação de numeros
-				if(!isPalavra && isNumero(charAtual)) {
-					isNumero = true;
-					palavra += charAtual;
-					continue;
-				} else if(isNumero && isNumero(charAtual)) {
-					palavra += charAtual;
-					continue;
-				} else if(isNumero && !isNumero(charAtual)) {
-					if(charAtual == '.') {
-						insertOnErrorStack("Numeros de ponto flutuante na linha ", numLinha);
-					} else if(Double.parseDouble(palavra) > -32768 && Double.parseDouble(palavra) < 32768) {
-						insertOnTokenStack(26, palavra, numLinha);
-						isNumero = false;
-						continue;						
-					} else if(Double.parseDouble(palavra) <= -32768 || Double.parseDouble(palavra) >= 32768) {
-						insertOnErrorStack("Inteiro fora dos valores aceitos na linha ", numLinha);
+				if(!isLiteral) {
+					//iniciacao de palavras
+					
+					// verificação de simbolos terminais
+					if((codigo = getSimbolosSecundarios(charAtual, charProx)) != 0) { //verifica se é simbolo composto
+						insertOnTokenStack(codigo, "" + charAtual + charProx, numLinha);
+						palavra = "";
+						i++;
+					} else if((codigo = getSimboloPrimario(charAtual)) != 0) { //verifica se é simbolo primario
+						insertOnTokenStack(codigo, "" + charAtual, numLinha);
+						palavra = "";
 					}
-				}
-				
-				// verificação de simbolos terminais
-				if((codigo = getSimbolosSecundarios(charAtual, charProx)) != 0) {
-					String valor = "";
-					insertOnTokenStack(codigo, palavra, numLinha);
-					i++;
-					continue;
-				}
-				else if((codigo = getSimboloPrimario(charAtual)) != 0) {
-					String valor = "";
-					token.setCodigo(codigo)
-						.setValor(valor += charAtual)
-						.setNumLinha(i);
-					tokenStack.push(token);
-					continue;
-				}
-				
-				// montagem de palavra
-				if(!isPalavra && isLetra(charAtual)) {
-					System.out.println("começa a palavra");
-					isPalavra = true;
-					palavra += charAtual;
-					continue;
-				} else if(isPalavra && (isLetra(charAtual) || isNumero(charAtual))) {
-					System.out.println("adiciona na palavra");
-					palavra += charAtual;
-					continue;
-				} else if(isPalavra && !isLetra(charAtual) && !isNumero(charAtual)) {
-					System.out.println("termina a palavra");
-					System.out.println("vê se é palavra reservada" + getPalavraReservada(palavra));
-					if((codigo = getPalavraReservada(palavra)) != 0) {
-						System.out.println("palavra reservada");
-						insertOnTokenStack(codigo, palavra, numLinha);
-						continue;
-					} else {
-						System.out.println("identificador");
-						insertOnTokenStack(25, palavra, numLinha);
-						continue;
+					
+					if(!isPalavra) { //nao é palavra
+						//iniciado com simbolo '-' ou iniciado com número - isNumero = true;
+						if(charAtual == '-' && isNumero(charProx)) { //inicia bloco de numeros quando valor for simbolo '-'
+							isNumero = true;
+							palavra += charAtual;
+						}
+						if(isNumero(charAtual)) { //inicia bloco de numeros
+							isNumero = true;
+							palavra += charAtual;
+						} else if(isNumero && isNumero(charAtual)) { //adiciona no bloco de numeros
+							palavra += charAtual;
+							if(isUltimoCaracter) {
+								insertOnTokenStack(26, palavra, numLinha);
+								palavra = "";
+							}
+						} else if(isNumero && !isNumero(charAtual)) { //finaliza bloco de numeros
+							if(charAtual == '.') { //verifica ponto flutuante
+								insertOnErrorStack("Numeros de ponto flutuante na linha ", numLinha);
+							} else if(Double.parseDouble(palavra) > -32768 && Double.parseDouble(palavra) < 32768) { //verifica escala de inteiros da linguagem
+								insertOnTokenStack(26, palavra, numLinha);
+								palavra = "";
+								isNumero = false;
+							} else if(Double.parseDouble(palavra) <= -32768 || Double.parseDouble(palavra) >= 32768) { //cria erro de ponto flutuante
+								insertOnErrorStack("Inteiro fora dos valores aceitos na linha ", numLinha);
+							}
+						}
 					}
-				}
-
-				if(isUltimoCaracter) {
-					System.out.println('a');
+					
+					if(!isNumero) { //nao e numero
+						// montagem de palavra
+						if(!isPalavra && isLetra(charAtual)) {
+							isPalavra = true;
+							palavra += charAtual;
+						}
+						if(isPalavra) {
+							try {
+								while(isLetra(caracteres[i + 1]) || isNumero(caracteres[i + 1])) {
+									palavra += caracteres[i + 1];
+									i++;
+								}
+							} catch(Exception e) {
+								
+							}
+							if((codigo = getPalavraReservada(palavra)) != 0) {
+								insertOnTokenStack(codigo, palavra, numLinha);
+								palavra = "";
+								isPalavra = false;
+							} else {
+								insertOnTokenStack(25, palavra, numLinha);
+								palavra = "";
+								isPalavra = false;
+							}
+						}
+					}
 				}
 			}
+		}
+		
+		if(isComentario) {
+			insertOnErrorStack("Erro de nao fechamento de comentario na linha ", linhaComentario);
+		}
+		if(isLiteral) {
+			insertOnErrorStack("Erro de nao fechamento de literal na linha ", linhaLiteral);
 		}
 		
 		if(!erros.empty()) {
@@ -182,11 +183,13 @@ public class AnalizadorLexico {
 		} else {
 			retorno.setTokenStack(tokenStack);
 		}
-		
-		System.out.println(tokenStack.size());
+
 		Stack<Token> stack = retorno.getTokenStack();
-		for(Token token : stack) {
-			System.out.println(token);
+		while(!stack.isEmpty()) {
+			Token token = stack.pop();
+//			System.out.println("codigo = " + token.getCodigo());
+//			System.out.println("valor = " + token.getValor());
+//			System.out.println("num linha = " + token.getNumLinha());
 		}
 		
 		return retorno;
@@ -198,7 +201,6 @@ public class AnalizadorLexico {
 			.setValor(palavra)
 			.setNumLinha(numLinha);
 		tokenStack.push(token);
-		palavra = "";
 	}
 	
 	private void insertOnErrorStack(String mensagem, int numLinha) {

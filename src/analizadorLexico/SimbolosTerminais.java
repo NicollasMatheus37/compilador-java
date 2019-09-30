@@ -18,7 +18,6 @@ public class SimbolosTerminais {
     public void iniciaHashMapTerminais() {
     	
     	// simbolos primarios
-    	simbolosPrimarios.put(' ', -1);
         simbolosPrimarios.put('+', 30);
         simbolosPrimarios.put('-', 31);
         simbolosPrimarios.put('*', 32);
