@@ -71,6 +71,7 @@ public class Frame extends JFrame {
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
+		
 //		-----------------------Button-----------------------------
 		JButton btnCompilar = new JButton("Compilar");
 		btnCompilar.setBackground(SystemColor.menu);
@@ -79,10 +80,10 @@ public class Frame extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				fontCode = areaDeCodigo.getText();
-				AnalizadorLexico lexis = new AnalizadorLexico();
+				AnalizadorLexico lexico = new AnalizadorLexico();
 				
 				try {
-					lexis.Analizar(fontCode);
+					lexico.Analizar(fontCode);
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -90,20 +91,6 @@ public class Frame extends JFrame {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				
-				//exemplo de população da lista
-//				Object o = new Object();
-//				o= "ssssssss";
-//				o+="aaaaaaa";
-//				tokenStack.addElement(o);
-//				tokenStack.addElement(o);
-//				tokenStack.addElement(o);
-//				tokenStack.addElement(o);
-//				tokenStack.addElement(o);
-//				tokenStack.addElement(o);
-//				tokenStack.addElement(o);
-//				pilhaToken.setModel(tokenStack);
 			}
 		});
 		contentPane.setLayout(null);
