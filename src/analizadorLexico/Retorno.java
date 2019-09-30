@@ -11,9 +11,11 @@ public class Retorno {
 	public boolean gethasError() {
 		return hasError;
 	}
+	
 	public void setHasError(boolean isError) {
 		this.hasError = isError;
 	}
+	
 	public Stack<Erros> getErrorStack() {
 		Stack<Erros> invertedStack = new Stack<Erros>();
 		try {
@@ -25,9 +27,11 @@ public class Retorno {
 		}
 		return invertedStack;
 	}
+	
 	public void setErrorStack(Stack<Erros> errorStack) {
 		this.errorStack = errorStack;
 	}
+	
 	public Stack<Token> getTokenStack() {
 		Stack<Token> invertedStack = new Stack<Token>();
 		try {
@@ -39,6 +43,7 @@ public class Retorno {
 		}
 		return invertedStack;
 	}
+	
 	public void setTokenStack(Stack<Token> tokenStack) {
 		this.tokenStack = tokenStack;
 	}

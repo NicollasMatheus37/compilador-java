@@ -74,7 +74,7 @@ public class AnalizadorLexico {
 				//comentarios
 				if(charAtual == '(' && charProx == '*' && !isComentario) { //inicia comentário
 					isComentario = true;
-					linhaComentario = i;
+					linhaComentario = numLinha;
 					i++;
 					continue;
 				} else if(charAtual == '*' && charProx == ')' && isComentario) { //fecha bloco de comentario
@@ -95,6 +95,7 @@ public class AnalizadorLexico {
 					palavra += charAtual;
 				} else if(charAtual == '\'' && isLiteral) { //fecha bloco de literais
 					palavra += charAtual;
+					isLiteral = false;
 					insertOnTokenStack(48, palavra, numLinha);
 					palavra = "";
 				}
@@ -197,17 +198,12 @@ public class AnalizadorLexico {
 				.setNumLinha(numLinha);
 		tokenStack.add(tok);
 		Token token = tokenStack.peek();
-		System.out.println("-----PEEK-----");
-		System.out.println("codigo = " + token.getCodigo());
-		System.out.println("valor = " + token.getValor());
-		System.out.println("num linha = " + token.getNumLinha());
-		System.out.println();
 	}
 	
 	private void insertOnErrorStack(String mensagem, int numLinha) {
 		erros.push(
 				(new Erros())
-					.setMensagem("Numeros de ponto flutuante na linha ")
+					.setMensagem(mensagem)
 					.setLinha(numLinha));
 	}
 	

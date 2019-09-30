@@ -43,7 +43,7 @@ public class Frame extends JFrame {
 	private JScrollPane scrollPaneAreaDeCodigo;
 	private JTextArea areaDeCodigo;
 	private JScrollPane scrollPaneConsole;
-	private JTextArea textArea_1;
+	private JTextArea consoleTextArea;
 	private DefaultListModel defaultListModel = new DefaultListModel();
 	public String fontCode;
 	private JButton btnSalvar;
@@ -84,6 +84,8 @@ public class Frame extends JFrame {
 		btnCompilar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
+				defaultListModel.clear();
+				consoleTextArea.setText("");
 				fontCode = areaDeCodigo.getText();
 				AnalizadorLexico lexico = new AnalizadorLexico();
 				
@@ -94,16 +96,23 @@ public class Frame extends JFrame {
 					Stack<Token> tokenStack = retorno.getTokenStack();
 					Stack<Erros> errorStack = retorno.getErrorStack();
 					
-					defaultListModel.addElement("CODIGO | VALOR | LINHA");
-					while(!tokenStack.isEmpty()) {
-						Token token = tokenStack.pop();
-						String tokenString = token.getCodigo() + " | "
-								+ token.getValor() + " | "
-								+ token.getNumLinha();
-						defaultListModel.addElement(tokenString);
+					if(retorno.gethasError()) {
+						Erros erros = errorStack.pop();
+						String erro = erros.getMensagem() + erros.getLinha();
+						
+						consoleTextArea.setText(erro);
+					} else {						
+						defaultListModel.addElement("CODIGO | VALOR | LINHA");
+						while(!tokenStack.isEmpty()) {
+							Token token = tokenStack.pop();
+							String tokenString = token.getCodigo() + " | "
+									+ token.getValor() + " | "
+									+ token.getNumLinha();
+							defaultListModel.addElement(tokenString);
+						}
+						pilhaToken.setModel(defaultListModel);
 					}
 					
-					pilhaToken.setModel(defaultListModel);
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -213,8 +222,8 @@ public class Frame extends JFrame {
 		scrollPaneConsole.setBounds(10, 411, 736, 132);
 		contentPane.add(scrollPaneConsole);
 		
-		textArea_1 = new JTextArea();
-		scrollPaneConsole.setViewportView(textArea_1);
+		consoleTextArea = new JTextArea();
+		scrollPaneConsole.setViewportView(consoleTextArea);
 		
 		scrollPaneListaToken = new JScrollPane();
 		scrollPaneListaToken.setBounds(756, 257, 175, 286);
