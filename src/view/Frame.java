@@ -47,6 +47,7 @@ public class Frame extends JFrame {
 	private DefaultListModel defaultListModel = new DefaultListModel();
 	public String fontCode;
 	private JButton btnSalvar;
+	private JScrollPane scrollPaneListaToken;
 
 	/**
 	 * Launch the application.
@@ -182,10 +183,6 @@ public class Frame extends JFrame {
 		pilhaDerivação.setBounds(756, 31, 175, 192);
 		contentPane.add(pilhaDerivação);
 		
-		pilhaToken = new JList();
-		pilhaToken.setBounds(756, 262, 175, 281);
-		contentPane.add(pilhaToken);
-		
 //		----------------------------------Labels---------------------------------------
 		JLabel lblPilhaDeTokens = new JLabel("                Pilha de Tokens");
 		lblPilhaDeTokens.setBounds(756, 234, 175, 25);
@@ -218,6 +215,13 @@ public class Frame extends JFrame {
 		
 		textArea_1 = new JTextArea();
 		scrollPaneConsole.setViewportView(textArea_1);
+		
+		scrollPaneListaToken = new JScrollPane();
+		scrollPaneListaToken.setBounds(756, 257, 175, 286);
+		contentPane.add(scrollPaneListaToken);
+		
+		pilhaToken = new JList();
+		scrollPaneListaToken.setViewportView(pilhaToken);
 		
 	}
 }
