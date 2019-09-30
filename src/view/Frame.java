@@ -8,7 +8,10 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import analizadorLexico.AnalizadorLexico;
+import analizadorLexico.Erros;
 import analizadorLexico.ManipuladorArquivos;
+import analizadorLexico.Retorno;
+import analizadorLexico.Token;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -18,6 +21,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Stack;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.JList;
@@ -40,7 +44,7 @@ public class Frame extends JFrame {
 	private JTextArea areaDeCodigo;
 	private JScrollPane scrollPaneConsole;
 	private JTextArea textArea_1;
-	private DefaultListModel tokenStack = new DefaultListModel();
+	private DefaultListModel defaultListModel = new DefaultListModel();
 	public String fontCode;
 	private JButton btnSalvar;
 
@@ -83,7 +87,22 @@ public class Frame extends JFrame {
 				AnalizadorLexico lexico = new AnalizadorLexico();
 				
 				try {
-					lexico.Analizar(fontCode);
+					
+					Retorno retorno = lexico.Analizar(fontCode);
+					retorno.gethasError();
+					Stack<Token> tokenStack = retorno.getTokenStack();
+					Stack<Erros> errorStack = retorno.getErrorStack();
+					
+					defaultListModel.addElement("CODIGO | VALOR | LINHA");
+					while(!tokenStack.isEmpty()) {
+						Token token = tokenStack.pop();
+						String tokenString = token.getCodigo() + " | "
+								+ token.getValor() + " | "
+								+ token.getNumLinha();
+						defaultListModel.addElement(tokenString);
+					}
+					
+					pilhaToken.setModel(defaultListModel);
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

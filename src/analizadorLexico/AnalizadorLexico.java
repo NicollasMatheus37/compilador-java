@@ -112,31 +112,33 @@ public class AnalizadorLexico {
 						palavra = "";
 					}
 					
-					if(!isPalavra) { //nao é palavra
-						//iniciado com simbolo '-' ou iniciado com número - isNumero = true;
-						if(charAtual == '-' && isNumero(charProx)) { //inicia bloco de numeros quando valor for simbolo '-'
-							isNumero = true;
-							palavra += charAtual;
+					//iniciado com simbolo '-' ou iniciado com número - isNumero = true;
+					if(charAtual == '-' && isNumero(charProx)) { //inicia bloco de numeros quando valor for simbolo '-'
+						isNumero = true;
+						palavra += charAtual;
+					}
+					if(isNumero(charAtual)) { //inicia bloco de numeros
+						isNumero = true;
+						palavra += charAtual;
+					}
+					if(isNumero) {
+						try {
+							while(isNumero(caracteres[i + 1])) {
+								if(charAtual == '.') { //verifica ponto flutuante
+									insertOnErrorStack("Numeros de ponto flutuante na linha ", numLinha);
+								}
+								palavra += caracteres[i + 1];
+								i++;
+							}
+						} catch(Exception e) {
+							
 						}
-						if(isNumero(charAtual)) { //inicia bloco de numeros
-							isNumero = true;
-							palavra += charAtual;
-						} else if(isNumero && isNumero(charAtual)) { //adiciona no bloco de numeros
-							palavra += charAtual;
-							if(isUltimoCaracter) {
-								insertOnTokenStack(26, palavra, numLinha);
-								palavra = "";
-							}
-						} else if(isNumero && !isNumero(charAtual)) { //finaliza bloco de numeros
-							if(charAtual == '.') { //verifica ponto flutuante
-								insertOnErrorStack("Numeros de ponto flutuante na linha ", numLinha);
-							} else if(Double.parseDouble(palavra) > -32768 && Double.parseDouble(palavra) < 32768) { //verifica escala de inteiros da linguagem
-								insertOnTokenStack(26, palavra, numLinha);
-								palavra = "";
-								isNumero = false;
-							} else if(Double.parseDouble(palavra) <= -32768 || Double.parseDouble(palavra) >= 32768) { //cria erro de ponto flutuante
-								insertOnErrorStack("Inteiro fora dos valores aceitos na linha ", numLinha);
-							}
+						if(Double.parseDouble(palavra) > -32768 && Double.parseDouble(palavra) < 32768) { //verifica escala de inteiros da linguagem
+							insertOnTokenStack(26, palavra, numLinha);
+							palavra = "";
+							isNumero = false;
+						} else if(Double.parseDouble(palavra) <= -32768 || Double.parseDouble(palavra) >= 32768) { //cria erro de ponto flutuante
+							insertOnErrorStack("Inteiro fora dos valores aceitos na linha ", numLinha);
 						}
 					}
 					
@@ -178,18 +180,10 @@ public class AnalizadorLexico {
 		}
 		
 		if(!erros.empty()) {
-			retorno.setError(true);
+			retorno.setHasError(true);
 			retorno.setErrorStack(erros);
 		} else {
 			retorno.setTokenStack(tokenStack);
-		}
-
-		Stack<Token> stack = retorno.getTokenStack();
-		while(!stack.isEmpty()) {
-			Token token = stack.pop();
-//			System.out.println("codigo = " + token.getCodigo());
-//			System.out.println("valor = " + token.getValor());
-//			System.out.println("num linha = " + token.getNumLinha());
 		}
 		
 		return retorno;
@@ -197,10 +191,17 @@ public class AnalizadorLexico {
 	}
 	
 	private void insertOnTokenStack(int codigo, String palavra, int numLinha) {
-		token.setCodigo(codigo)
-			.setValor(palavra)
-			.setNumLinha(numLinha);
-		tokenStack.push(token);
+		Token tok = new Token();
+				tok.setCodigo(codigo)
+				.setValor(palavra)
+				.setNumLinha(numLinha);
+		tokenStack.add(tok);
+		Token token = tokenStack.peek();
+		System.out.println("-----PEEK-----");
+		System.out.println("codigo = " + token.getCodigo());
+		System.out.println("valor = " + token.getValor());
+		System.out.println("num linha = " + token.getNumLinha());
+		System.out.println();
 	}
 	
 	private void insertOnErrorStack(String mensagem, int numLinha) {

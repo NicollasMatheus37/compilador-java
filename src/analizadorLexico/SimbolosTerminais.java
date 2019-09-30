@@ -43,33 +43,33 @@ public class SimbolosTerminais {
         simbolosSecundarios.put("..", 50);
 
         // palavras reservadas
-        palavrasReservadas.put("Program", 1);
-        palavrasReservadas.put("Label", 2);
-        palavrasReservadas.put("Const", 3);
-        palavrasReservadas.put("Var", 4);
-        palavrasReservadas.put("Procedure", 5);
-        palavrasReservadas.put("Begin", 6);
-        palavrasReservadas.put("End", 7);
-        palavrasReservadas.put("Integer", 8);
-        palavrasReservadas.put("Array", 9);
-        palavrasReservadas.put("Of", 10);
-        palavrasReservadas.put("Call", 11);
-        palavrasReservadas.put("Goto", 12);
-        palavrasReservadas.put("If", 13);
-        palavrasReservadas.put("Then", 14);
-        palavrasReservadas.put("Else", 15);
-        palavrasReservadas.put("While", 16);
-        palavrasReservadas.put("Do", 17);
-        palavrasReservadas.put("Repeat", 18);
-        palavrasReservadas.put("Until", 19);
-        palavrasReservadas.put("Readln", 20);
-        palavrasReservadas.put("Writeln", 21);
-        palavrasReservadas.put("Or", 22);
-        palavrasReservadas.put("And", 23);
-        palavrasReservadas.put("Not", 24);
-        palavrasReservadas.put("For", 27);
-        palavrasReservadas.put("To", 28);
-        palavrasReservadas.put("Case", 29);
+        palavrasReservadas.put("PROGRAM", 1);
+        palavrasReservadas.put("LABEL", 2);
+        palavrasReservadas.put("CONST", 3);
+        palavrasReservadas.put("VAR", 4);
+        palavrasReservadas.put("PROCEDURE", 5);
+        palavrasReservadas.put("BEGIN", 6);
+        palavrasReservadas.put("END", 7);
+        palavrasReservadas.put("INTEGER", 8);
+        palavrasReservadas.put("ARRAY", 9);
+        palavrasReservadas.put("OF", 10);
+        palavrasReservadas.put("CALL", 11);
+        palavrasReservadas.put("GOTO", 12);
+        palavrasReservadas.put("IF", 13);
+        palavrasReservadas.put("THEN", 14);
+        palavrasReservadas.put("ELSE", 15);
+        palavrasReservadas.put("WHILE", 16);
+        palavrasReservadas.put("DO", 17);
+        palavrasReservadas.put("REPEAT", 18);
+        palavrasReservadas.put("UNTIL", 19);
+        palavrasReservadas.put("READLN", 20);
+        palavrasReservadas.put("WRITELN", 21);
+        palavrasReservadas.put("OR", 22);
+        palavrasReservadas.put("AND", 23);
+        palavrasReservadas.put("NOT", 24);
+        palavrasReservadas.put("FOR", 27);
+        palavrasReservadas.put("TO", 28);
+        palavrasReservadas.put("CASE", 29);
     }
 
     public int getSimboloPrimario(char caracter) {
