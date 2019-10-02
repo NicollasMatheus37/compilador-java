@@ -6,10 +6,21 @@ public class Token {
 	private String valor;
 	private int numLinha;
 	
+	
+	public Token() {
+		super();
+	}
+
+	public Token(int codigo, String valor) {
+		super();
+		this.codigo = codigo;
+		this.valor = valor;
+	}
+
 	public int getCodigo() {
 		return this.codigo;
 	}
-	
+
 	public Token setCodigo(int codigo) {
 		this.codigo = codigo;
 		return this;
