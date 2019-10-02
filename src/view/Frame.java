@@ -46,9 +46,10 @@ public class Frame extends JFrame {
 	private JScrollPane scrollPaneConsole;
 	private JTextArea consoleTextArea;
 	private DefaultListModel defaultListModel = new DefaultListModel();
-	public String fontCode;
+	private String fontCode;
 	private JButton btnSalvar;
 	private JScrollPane scrollPaneListaToken;
+	private JScrollPane scrollPane;
 
 	/**
 	 * Launch the application.
@@ -193,19 +194,14 @@ public class Frame extends JFrame {
 		contentPane.add(btnAbrirArquivo);
 		contentPane.add(btnCompilar);
 		
-//		---------------------------------Lists-----------------------------------------
-		pilhaDerivação = new JList();
-		pilhaDerivação.setBounds(756, 31, 175, 192);
-		contentPane.add(pilhaDerivação);
-		
 //		----------------------------------Labels---------------------------------------
 		JLabel lblPilhaDeTokens = new JLabel("                Pilha de Tokens");
 		lblPilhaDeTokens.setBounds(756, 234, 175, 25);
 		lblPilhaDeTokens.setBackground(SystemColor.windowBorder);
 		contentPane.add(lblPilhaDeTokens);
 		
-		JLabel lblPilha = new JLabel("                 Pilha de Deriva\u00E7\u00E3o");
-		lblPilha.setBounds(756, 11, 175, 20);
+		JLabel lblPilha = new JLabel("           Pilha de Deriva\u00E7\u00E3o");
+		lblPilha.setBounds(756, 10, 175, 20);
 		contentPane.add(lblPilha);
 		
 		lblConsole = new JLabel("   Console:");
@@ -237,6 +233,14 @@ public class Frame extends JFrame {
 		
 		pilhaToken = new JList();
 		scrollPaneListaToken.setViewportView(pilhaToken);
+		
+		scrollPane = new JScrollPane();
+		scrollPane.setBounds(756, 31, 175, 207);
+		contentPane.add(scrollPane);
+		
+//		---------------------------------Lists-----------------------------------------
+		pilhaDerivação = new JList();
+		scrollPane.setViewportView(pilhaDerivação);
 		
 	}
 }

@@ -2,6 +2,7 @@ package analisadorSintatico;
 
 import java.util.Stack;
 
+import analizadorLexico.Erros;
 import analizadorLexico.SimbolosTerminais;
 import analizadorLexico.Token;
 
@@ -14,6 +15,8 @@ public class AnalisadorSintatico {
 	private Terminais terminais = new Terminais();
 	
 	//----------	pilhas
+	private Stack<Token> derivadas = new Stack <Token>();
+	private Stack<Erros> pilhaErros = new Stack<Erros>();
 	private Stack<Token> pilhaLexica = new Stack<Token>();
 	private Stack<Token> pilhaSintatica = new Stack<Token>();
 
@@ -34,7 +37,6 @@ public class AnalisadorSintatico {
 		while(!pilhaSintatica.isEmpty()) {
 			
 			//atribui valores a serem analisados
-			Stack <Token> derivadas = new Stack <Token>();
 			Token valorEntrada = pilhaLexica.peek();
 			Token valorSintatico = pilhaSintatica.peek();
 			
@@ -68,7 +70,8 @@ public class AnalisadorSintatico {
 						pilhaSintatica.pop();
 						
 					} else /* se nao erro */{ 
-						System.out.println("Erro sintatico");
+						pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor() + " ' | linha ->" + valorEntrada.getNumLinha())));
+						System.out.println(((Erros)pilhaErros.peek()).getMensagem());	
 						break;
 					}
 					
@@ -93,7 +96,8 @@ public class AnalisadorSintatico {
 						derivadas.clear();
 						
 					} else /* caso nao exista derivacao erro */{
-						System.out.println("erro de derivaçao");
+						pilhaErros.add((new Erros("ERRO-------> Não e permitido ' " + valorEntrada.getValor() + " ' | linha ->" + valorEntrada.getNumLinha())));
+						System.out.println(((Erros)pilhaErros.peek()).getMensagem());
 						break;
 					}
 				}
@@ -111,7 +115,7 @@ public class AnalisadorSintatico {
 		}
 	}
 	
-	/*  tranforma a string da derivacao em token  */
+	/*  forma token da derivacao  */
 	private Token formataDerivacao(String deriv) {
 		int codigo;
 		

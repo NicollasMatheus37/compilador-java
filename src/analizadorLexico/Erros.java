@@ -6,12 +6,20 @@ public class Erros {
 	private String mensagem;
 	private int linha;
 	
-	public String getTitulo() {
-		return titulo;
+	public Erros() {
+		super();
 	}
+	public Erros(String mensagem) {
+		super();
+		this.mensagem = mensagem;
+	}
+
 	public Erros setTitulo(String titulo) {
 		this.titulo = titulo;
 		return this;
+	}
+	public String getTitulo() {
+		return titulo;
 	}
 	public String getMensagem() {
 		return mensagem;
