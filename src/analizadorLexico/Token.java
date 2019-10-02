@@ -12,7 +12,7 @@ public class Token {
 	}
 
 	public Token(int codigo, String valor) {
-		super();
+//		super();
 		this.codigo = codigo;
 		this.valor = valor;
 	}

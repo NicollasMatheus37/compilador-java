@@ -7,7 +7,7 @@ public class Terminais {
 
 	private Map<String, Integer> tabelaTerminais = new HashMap<String, Integer>();
 	
-	public void Terminais() {
+	public Terminais() {
 		this.iniciaTabela();
 	}
 	
@@ -17,6 +17,10 @@ public class Terminais {
     		return tabelaTerminais.get(terminal);
     	}
 		return 0;
+	}
+	
+	public Boolean containsKey(String key) {
+		return tabelaTerminais.containsKey(key);
 	}
 	
 	private void iniciaTabela() {

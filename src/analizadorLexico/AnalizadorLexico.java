@@ -35,7 +35,7 @@ public class AnalizadorLexico {
 		erros.clear();
 		tokenStack.clear();
 		
-		System.out.println("texto: " + texto);
+//		System.out.println("texto: " + texto);
 
 		String textoArquivo = (texto);
 		Reader reader = new StringReader(textoArquivo);

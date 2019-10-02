@@ -7,7 +7,7 @@ public class SimbolosNaoTerminais {
 
 	private Map<String, Integer> simbolosNaoTerminais = new HashMap<String, Integer>();
 	
-	public void SimbolosNaoTerminais() {
+	public SimbolosNaoTerminais() {
 		this.iniciaHashMapNaoTerminais();
 	}
 	
@@ -15,7 +15,11 @@ public class SimbolosNaoTerminais {
 		if(simbolosNaoTerminais.containsKey(palavra)) {
 			return simbolosNaoTerminais.get(palavra);
 		}
-		return 0;
+		return null;
+	}
+	
+	public Boolean containsKey(String key) {
+		return simbolosNaoTerminais.containsKey(key);
 	}
 	
 	private void iniciaHashMapNaoTerminais() {

@@ -6,25 +6,27 @@ import analizadorLexico.SimbolosTerminais;
 import analizadorLexico.Token;
 
 public class AnalisadorSintatico {
-//------------	tabelas  
+/*--------------------------------Variaveis de classe-----------------------------*/
+	
+	//------------	tabelas  
 	private TabelaParsing tabelaDerivacoes = new TabelaParsing();
 	private SimbolosNaoTerminais naoTerminais = new SimbolosNaoTerminais();
 	private Terminais terminais = new Terminais();
 	
-//------------	variaveis de classe 
+	//----------	pilhas
 	private Stack<Token> pilhaLexica = new Stack<Token>();
 	private Stack<Token> pilhaSintatica = new Stack<Token>();
-	private Token valorEntrada = new Token();
-	private Token valorSintatico = new Token();
+
+/*------------------------------------Metodos--------------------------------------*/
 	
-//------------	construtor 
-	public void analisadorSintatico(Stack<Token> tokenStack) {
+	/* -----------------construtor------------------- */ 
+	public AnalisadorSintatico(Stack<Token> tokenStack) {
 		this.pilhaLexica = tokenStack;
 		this.pilhaSintatica.add(new Token(52,"PROGRAMA"));
 	}
 
 	
-//------------	funcao responsavel pela analise sintatica 
+	/* funcao responsavel pela analise sintatica */ 
 	public void analiseSintatica() {
 		
 		
@@ -32,46 +34,66 @@ public class AnalisadorSintatico {
 		while(!pilhaSintatica.isEmpty()) {
 			
 			//atribui valores a serem analisados
-			valorEntrada = pilhaLexica.peek();
-			valorSintatico = pilhaSintatica.peek();
+			Stack <Token> derivadas = new Stack <Token>();
+			Token valorEntrada = pilhaLexica.peek();
+			Token valorSintatico = pilhaSintatica.peek();
+			
+			System.out.println(valorEntrada.getValor() + "-----" + valorSintatico.getValor());
 		
 			//se valor inicial atribui primeiira derivação sintatica
 			if((valorSintatico.getCodigo() == 52) && (valorEntrada.getCodigo() == 1)) {
 				
-				pilhaSintatica.pop();
+				// retira token inicial e coleta sua derivacao
+				this.pilhaSintatica.pop();
 				String[] derivacoes = tabelaDerivacoes.getDerivação(valorSintatico.getCodigo(), valorEntrada.getCodigo());
 				
+				// atribui as derivacoes a uma pilha temporaria e depois a pilha principal				
 				for(String derivacao : derivacoes) {
-					pilhaSintatica.add(formataDerivacao(derivacao));
+					if(!derivacao.equals("NULL")) {
+						derivadas.add(formataDerivacao(derivacao));						
+					}
 				}
 				
-			} else {
+				addPilhaSintatica(derivadas);
+				derivadas.clear();
+				
+			} else /* se nao é posicao inicial */{
 				
 				//se x(topo da pilha sintatica) é terminal
-				if(valorEntrada.getCodigo() < 52) {
+				if(valorSintatico.getCodigo() < 52) {
 					
+					// se derivacao igual a token lexico remove ambos 
 					if(valorSintatico.getCodigo() == valorEntrada.getCodigo()) {
 						pilhaLexica.pop();
 						pilhaSintatica.pop();
 						
-					} else { 
-						System.out.println("erroooooou");
+					} else /* se nao erro */{ 
+						System.out.println("Erro sintatico");
 						break;
 					}
 					
 					
-				} else {
+				} else /* se x(topo da pilha sintaica) é nao-terminal */{
 					
-					if(tabelaDerivacoes.getDerivação(valorSintatico.getCodigo(), valorEntrada.getCodigo())!= null) {
+					// se existir derivacao com os codigos do topo das pilhas sintatica e lexica
+					if(tabelaDerivacoes.containsKey(valorSintatico.getCodigo(), valorEntrada.getCodigo())) {
 						
-						pilhaSintatica.pop();
+						// retira token inicial e coleta sua derivacao
+						this.pilhaSintatica.pop();
 						String[] derivacoes = tabelaDerivacoes.getDerivação(valorSintatico.getCodigo(), valorEntrada.getCodigo());
 						
+						// atribui as derivacoes a uma pilha temporaria e depois a pilha principal
 						for(String derivacao : derivacoes) {
-							pilhaSintatica.add(formataDerivacao(derivacao));
-						}		
-					} else {
-						System.out.println("erroooooou");
+							if(!derivacao.equals("NULL")) {
+								derivadas.add(formataDerivacao(derivacao));						
+							}
+						}
+						
+						addPilhaSintatica(derivadas);
+						derivadas.clear();
+						
+					} else /* caso nao exista derivacao erro */{
+						System.out.println("erro de derivaçao");
 						break;
 					}
 				}
@@ -80,26 +102,26 @@ public class AnalisadorSintatico {
 		}
 	}
 	
-//------------------------ funcoes auxiliares --------------------------------
+/*------------------------ funcoes auxiliares --------------------------------*/
 	
-	private Token formataDerivacao(String deriv) {
-		Integer codigo;
-		
-		   try {
-			   if(naoTerminais.getNaoTerminal(deriv) != 0) {
-				   	codigo = naoTerminais.getNaoTerminal(deriv); 
-				   	return new Token(codigo, deriv);
-				   	
-			   } else {
-				   codigo = terminais.getTerminal(deriv);
-				   return new Token(codigo, deriv);
-			   }
-			   
-		   } catch (Exception e) {
-			   // ERROOOOOOOU
-		   	}
-		
-		return null;
+	/*  add pilha temporaria na pilha-sintatica  */
+	private void addPilhaSintatica(Stack<Token> stack) {
+		while(!stack.isEmpty()) {
+			pilhaSintatica.add(stack.pop());
+		}
 	}
 	
+	/*  tranforma a string da derivacao em token  */
+	private Token formataDerivacao(String deriv) {
+		int codigo;
+		
+		if(naoTerminais.containsKey(deriv)) {
+			codigo = naoTerminais.getNaoTerminal(deriv); 
+			return new Token(codigo, deriv);
+	   	
+		} else {
+			codigo = terminais.getTerminal(deriv);
+			return new Token(codigo, deriv);
+		}
+	}	
 }

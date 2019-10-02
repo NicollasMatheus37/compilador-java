@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import analisadorSintatico.AnalisadorSintatico;
 import analizadorLexico.AnalizadorLexico;
 import analizadorLexico.Erros;
 import analizadorLexico.ManipuladorArquivos;
@@ -95,6 +96,11 @@ public class Frame extends JFrame {
 					retorno.gethasError();
 					Stack<Token> tokenStack = retorno.getTokenStack();
 					Stack<Erros> errorStack = retorno.getErrorStack();
+					
+					if(!retorno.gethasError()) {
+						AnalisadorSintatico sintatico = new AnalisadorSintatico(tokenStack);
+						sintatico.analiseSintatica();
+					}
 					
 					if(retorno.gethasError()) {
 						Erros erros = errorStack.pop();
