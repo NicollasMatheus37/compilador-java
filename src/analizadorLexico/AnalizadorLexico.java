@@ -116,7 +116,7 @@ public class AnalizadorLexico {
 					//iniciado com simbolo '-' ou iniciado com número - isNumero = true;
 					if(charAtual == '-' && isNumero(charProx)) { //inicia bloco de numeros quando valor for simbolo '-'
 						isNumero = true;
-						palavra += charAtual;
+						palavra += charAtual + charProx;
 						i++;
 					}
 					if(isNumero(charAtual)) { //inicia bloco de numeros
