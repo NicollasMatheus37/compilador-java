@@ -22,23 +22,28 @@ public class AnalisadorSintatico {
 
 /*------------------------------------Metodos--------------------------------------*/
 	
-	/* -----------------construtor------------------- */ 
-	public AnalisadorSintatico(Stack<Token> tokenStack) {
+	/* funcao responsavel pela analise sintatica */ 
+	public void analiseSintatica(Stack<Token> tokenStack) {
+		
 		this.pilhaLexica = tokenStack;
 		this.pilhaSintatica.add(new Token(52,"PROGRAMA"));
-	}
-
-	
-	/* funcao responsavel pela analise sintatica */ 
-	public void analiseSintatica() {
-		
 		
 		//processa enquanto a pilha sintatica n estiver vazia
 		while(!pilhaSintatica.isEmpty()) {
+
+			Token valorEntrada = new Token();
+			Token valorSintatico = new Token();
 			
 			//atribui valores a serem analisados
-			Token valorEntrada = pilhaLexica.peek();
-			Token valorSintatico = pilhaSintatica.peek();
+			try {
+				valorEntrada = pilhaLexica.peek();
+				valorSintatico = pilhaSintatica.peek();
+				
+			} catch (Exception e) {
+				
+				pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor() + " ' | linha ->" + valorEntrada.getNumLinha())));
+				break;
+			}
 			
 			System.out.println(valorEntrada.getValor() + "-----" + valorSintatico.getValor());
 		

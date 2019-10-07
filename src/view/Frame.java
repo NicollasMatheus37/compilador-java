@@ -99,8 +99,8 @@ public class Frame extends JFrame {
 					Stack<Erros> errorStack = retorno.getErrorStack();
 					
 					if(!retorno.gethasError()) {
-						AnalisadorSintatico sintatico = new AnalisadorSintatico(tokenStack);
-						sintatico.analiseSintatica();
+						AnalisadorSintatico sintatico = new AnalisadorSintatico();
+						sintatico.analiseSintatica(tokenStack);
 					}
 					
 					if(retorno.gethasError()) {

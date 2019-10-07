@@ -80,8 +80,7 @@ public class SimbolosTerminais {
     }
     
     public int getSimbolosSecundarios(char caracter, char proxCaracter) {
-    	String composto = ""; 
-    	composto += caracter + proxCaracter;
+    	String composto = "" + caracter + proxCaracter;
     	if(simbolosSecundarios.containsKey(composto)) {
     		return simbolosSecundarios.get(composto);
     	}
@@ -89,8 +88,8 @@ public class SimbolosTerminais {
     }
     
     public int getPalavraReservada(String palavra) {
-    	if(palavrasReservadas.containsKey(palavra)) {
-    		return palavrasReservadas.get(palavra);
+    	if(palavrasReservadas.containsKey(palavra.toUpperCase())) {
+    		return palavrasReservadas.get(palavra.toUpperCase());
     	}
     	return 0;
     }

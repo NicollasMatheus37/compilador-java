@@ -10,14 +10,14 @@ import java.util.Stack;
 
 public class AnalizadorLexico {
 	
-	Token token = new Token();
-	ManipuladorArquivos interpretador = new ManipuladorArquivos();
-	SimbolosTerminais terminais = new SimbolosTerminais();
-	Stack<Token> tokenStack = new Stack<Token>();
-	Stack<Erros> erros = new Stack<Erros>();
-	Retorno retorno = new Retorno();
-	Reader reader;
-	BufferedReader bufferedReader;
+	private Token token = new Token();
+	private ManipuladorArquivos interpretador = new ManipuladorArquivos();
+	private SimbolosTerminais terminais = new SimbolosTerminais();
+	private Stack<Token> tokenStack = new Stack<Token>();
+	private Stack<Erros> erros = new Stack<Erros>();
+	private Retorno retorno = new Retorno();
+	private Reader reader;
+	private BufferedReader bufferedReader;
 	
 	boolean isComentario = false, isLiteral = false, isPalavra = false, isNumero = false, isUltimoCaracter = false;
 	int linhaComentario = 0, linhaLiteral = 0, tamComentario = 0;
@@ -26,9 +26,6 @@ public class AnalizadorLexico {
 	String linha = "";
 	
 	int codigo = 0;
-	
-	public AnalizadorLexico() {
-	}
 
 	public Retorno Analizar(String texto) throws FileNotFoundException, IOException {
 		
@@ -131,16 +128,18 @@ public class AnalizadorLexico {
 								palavra += caracteres[i + 1];
 								i++;
 							}
-						} catch(Exception e) {
 							
-						}
-						if(Double.parseDouble(palavra) > -32768 && Double.parseDouble(palavra) < 32768) { //verifica escala de inteiros da linguagem
-							insertOnTokenStack(26, palavra, numLinha);
-							palavra = "";
-							isNumero = false;
-						} else if(Double.parseDouble(palavra) <= -32768 || Double.parseDouble(palavra) >= 32768) { //cria erro de ponto flutuante
-							insertOnErrorStack("Inteiro fora dos valores aceitos na linha ", numLinha);
-						}
+							if(Double.parseDouble(palavra) > -32768 && Double.parseDouble(palavra) < 32768) { //verifica escala de inteiros da linguagem
+								insertOnTokenStack(26, palavra, numLinha);
+								palavra = "";
+								isNumero = false;
+								
+							} else if(Double.parseDouble(palavra) <= -32768 || Double.parseDouble(palavra) >= 32768) { //cria erro de ponto flutuante
+								insertOnErrorStack("Inteiro fora dos valores aceitos na linha ", numLinha);
+								
+							}
+						} catch(Exception e) {}
+						
 					}
 					
 					if(!isNumero) { //nao e numero
@@ -154,10 +153,12 @@ public class AnalizadorLexico {
 								while(isLetra(caracteres[i + 1]) || isNumero(caracteres[i + 1])) {
 									palavra += caracteres[i + 1];
 									i++;
+									if(palavra.length() > 30) {
+										insertOnErrorStack("String fora do limite de caracteres na linha ", numLinha);
+									}
 								}
-							} catch(Exception e) {
-								
-							}
+							} catch(Exception e) {}
+							
 							if((codigo = getPalavraReservada(palavra)) != 0) {
 								insertOnTokenStack(codigo, palavra, numLinha);
 								palavra = "";
