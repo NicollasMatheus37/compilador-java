@@ -2,6 +2,9 @@ package analizadorLexico;
 
 import java.util.Stack;
 
+import shared.Token;
+import view.Erros;
+
 public class Retorno {
 
 	private boolean hasError = false;

@@ -7,6 +7,9 @@ import java.io.StringReader;
 import java.text.Normalizer;
 import java.util.Stack;
 
+import shared.Token;
+import view.Erros;
+
 
 public class AnalizadorLexico {
 	
@@ -114,6 +117,7 @@ public class AnalizadorLexico {
 					if(charAtual == '-' && isNumero(charProx)) { //inicia bloco de numeros quando valor for simbolo '-'
 						isNumero = true;
 						palavra += charAtual;
+						i++;
 					}
 					if(isNumero(charAtual)) { //inicia bloco de numeros
 						isNumero = true;

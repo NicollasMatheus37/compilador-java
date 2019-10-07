@@ -2,9 +2,9 @@ package analisadorSintatico;
 
 import java.util.Stack;
 
-import analizadorLexico.Erros;
 import analizadorLexico.SimbolosTerminais;
-import analizadorLexico.Token;
+import shared.Token;
+import view.Erros;
 
 public class AnalisadorSintatico {
 /*--------------------------------Variaveis de classe-----------------------------*/

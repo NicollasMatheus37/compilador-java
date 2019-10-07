@@ -1,4 +1,4 @@
-package analizadorLexico;
+package shared;
 
 public class Token {
 

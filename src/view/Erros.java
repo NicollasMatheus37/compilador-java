@@ -1,4 +1,4 @@
-package analizadorLexico;
+package view;
 
 public class Erros {
 
