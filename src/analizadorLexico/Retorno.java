@@ -10,7 +10,16 @@ public class Retorno {
 	private boolean hasError = false;
 	private Stack<Erros> errorStack;
 	private Stack<Token> tokenStack;
+	private Stack<Token> sintaticStack;
 	
+	public Stack<Token> getSintaticStack() {
+		return sintaticStack;
+	}
+
+	public void setSintaticStack(Stack<Token> sintaticStack) {
+		this.sintaticStack = sintaticStack;
+	}
+
 	public boolean gethasError() {
 		return hasError;
 	}
@@ -51,5 +60,7 @@ public class Retorno {
 		this.tokenStack = tokenStack;
 	}
 	
-	
+	public Stack<Token> getNoRevertTokenStack() {
+		return tokenStack;
+	}
 }

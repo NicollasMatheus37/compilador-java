@@ -10,13 +10,13 @@ import java.io.PrintStream;
 public class ManipuladorArquivos {
 
 
-    public void GravaArquivo(String texto, String nomeArquivo, String path) throws FileNotFoundException, IOException {
+    public void GravaArquivo(String texto, String path) throws FileNotFoundException, IOException {
     	
         FileOutputStream arq = null;
         PrintStream ps = null;
         
         try {
-            File f = new File(path + nomeArquivo);
+            File f = new File(path);
             arq = new FileOutputStream(f);
             try {
                 ps = new PrintStream(arq);
