@@ -9,9 +9,10 @@ public class Erros {
 	public Erros() {
 		super();
 	}
-	public Erros(String mensagem) {
+	public Erros(String mensagem, int linha) {
 		super();
 		this.mensagem = mensagem;
+		this.linha = linha;
 	}
 
 	public Erros setTitulo(String titulo) {

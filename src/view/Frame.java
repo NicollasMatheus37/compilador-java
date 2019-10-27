@@ -136,7 +136,9 @@ public class Frame extends JFrame {
 					
 				if(!(areaDeCodigo.getText().isEmpty())) {
 					try {
-						
+						retorno = new Retorno();
+						lexico = new AnalizadorLexico();
+						sintatico = new AnalisadorSintatico();
 						retorno = lexico.Analizar(fontCode);
 						retorno.gethasError();
 						tokenStack = retorno.getTokenStack();
@@ -144,12 +146,15 @@ public class Frame extends JFrame {
 						
 						if(!retorno.gethasError()) {
 							
-							sintatico.analiseSintatica(tokenStack);
+							retorno= new Retorno();
+							retorno = sintatico.analiseSintatica(tokenStack);
+							tokenStack = retorno.getTokenStack();
+							errorStack = retorno.getErrorStack();
 						}
 						
-						if(retorno.gethasError()) {
+						if(!errorStack.isEmpty()) {
 							Erros erros = errorStack.pop();
-							String erro = erros.getMensagem() + erros.getLinha();
+							String erro = erros.getMensagem() + "    linha ->" + erros.getLinha();
 							
 							consoleTextArea.setText(erro);
 						} else {
@@ -237,9 +242,7 @@ public class Frame extends JFrame {
 		btnDebug.setBackground(SystemColor.menu);
 		btnDebug.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
-				tokenStack.clear();
-				sintaticStack.clear();
+
 				debugBackSintacStack.clear();
 				debugBackTokenStack.clear();
 				consoleTextArea.setText("");
@@ -253,6 +256,9 @@ public class Frame extends JFrame {
 				fontCode = areaDeCodigo.getText();
 
 				sintaticStack.add(new Token(52,"PROGRAMA"));
+				lexico = new AnalizadorLexico();
+				sintatico = new AnalisadorSintatico();
+				
 				if(!(areaDeCodigo.getText().isEmpty())) {
 					try {
 
@@ -352,7 +358,7 @@ public class Frame extends JFrame {
 		btnNext = new JButton(">");
 		btnNext.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if(!retorno.gethasError()) {
+				if(!retorno.gethasError() && !(tokenStack.isEmpty() && sintaticStack.isEmpty())) {
 					retorno = new Retorno();
 					debugBackTokenStack.push((Stack) tokenStack.clone());
 					debugBackSintacStack.push((Stack) sintaticStack.clone());
@@ -362,6 +368,7 @@ public class Frame extends JFrame {
 				} else if(tokenStack.isEmpty() && sintaticStack.isEmpty()) {
 					consoleTextArea.setText("Compilado sem erros!!");
 					btnNext.setEnabled(false);
+					btnBack.setEnabled(false);
 				}
 				
 				sintaticStack = retorno.getSintaticStack();
@@ -388,7 +395,7 @@ public class Frame extends JFrame {
 		contentPane.add(btnNext);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(756, 304, 293, 239);
+		scrollPane_1.setBounds(756, 284, 293, 259);
 		contentPane.add(scrollPane_1);
 		
 		String colunas[] = { "Codigo", "Valor" , "Linha" };
@@ -406,7 +413,7 @@ public class Frame extends JFrame {
 		scrollPane_1.setViewportView(tableTokens);
 		
 		scrollPane = new JScrollPane();
-		scrollPane.setBounds(756, 83, 293, 203);
+		scrollPane.setBounds(756, 31, 293, 227);
 		contentPane.add(scrollPane);
 		
 		modelDeriv= new DefaultTableModel(null, colunasS) {
@@ -419,11 +426,11 @@ public class Frame extends JFrame {
 		scrollPane.setViewportView(tableDeriv);
 		
 		JLabel lblPilhaDeTokens = new JLabel("Pilha de Tokens");
-		lblPilhaDeTokens.setBounds(861, 292, 188, 11);
+		lblPilhaDeTokens.setBounds(861, 269, 188, 11);
 		contentPane.add(lblPilhaDeTokens);
 		
 		lblPilhaDeDerivaes = new JLabel("Pilha de deriva\u00E7\u00F5es sintaticas");
-		lblPilhaDeDerivaes.setBounds(826, 68, 223, 14);
+		lblPilhaDeDerivaes.setBounds(826, 10, 223, 14);
 		contentPane.add(lblPilhaDeDerivaes);
 		
 	}

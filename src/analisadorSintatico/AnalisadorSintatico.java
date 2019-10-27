@@ -24,7 +24,7 @@ public class AnalisadorSintatico {
 /*------------------------------------Metodos--------------------------------------*/
 	
 	/* funcao responsavel pela analise sintatica */ 
-	public void analiseSintatica(Stack<Token> tokenStack) {
+	public Retorno analiseSintatica(Stack<Token> tokenStack) {
 		
 		this.pilhaLexica = tokenStack;
 		this.pilhaSintatica.add(new Token(52,"PROGRAMA"));
@@ -42,7 +42,8 @@ public class AnalisadorSintatico {
 				
 			} catch (Exception e) {
 				
-				pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor() + " ' | linha ->" + valorEntrada.getNumLinha())));
+				pilhaErros.add((new Erros("ERRO----> Esperado(a)" + valorSintatico.getValor(), valorEntrada.getNumLinha())));
+				retorno.setErrorStack(pilhaErros);
 				break;
 			}
 			
@@ -76,7 +77,8 @@ public class AnalisadorSintatico {
 						pilhaSintatica.pop();
 						
 					} else /* se nao erro */{ 
-						pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor() + " ' | linha ->" + valorEntrada.getNumLinha())));
+						pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor(), valorEntrada.getNumLinha())));
+						retorno.setErrorStack(pilhaErros);
 						System.out.println(((Erros)pilhaErros.peek()).getMensagem());	
 						break;
 					}
@@ -102,7 +104,8 @@ public class AnalisadorSintatico {
 						derivadas.clear();
 						
 					} else /* caso nao exista derivacao erro */{
-						pilhaErros.add((new Erros("ERRO-------> Não e permitido ' " + valorEntrada.getValor() + " ' | linha ->" + valorEntrada.getNumLinha())));
+						pilhaErros.add((new Erros("ERRO-------> Não e permitido ' " + valorEntrada.getValor(), valorEntrada.getNumLinha())));
+						retorno.setErrorStack(pilhaErros);
 						System.out.println(((Erros)pilhaErros.peek()).getMensagem());
 						break;
 					}
@@ -110,6 +113,8 @@ public class AnalisadorSintatico {
 
 			}
 		}
+		
+		return retorno;
 	}
 	
 	//metodo para o debug
@@ -130,7 +135,7 @@ public class AnalisadorSintatico {
 				
 			} catch (Exception e) {
 				
-				pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor() + " ' | linha ->" + valorEntrada.getNumLinha())));
+				pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor(), valorEntrada.getNumLinha())));
 
 				retorno.setHasError(true);
 				retorno.setErrorStack(pilhaErros);
@@ -172,7 +177,7 @@ public class AnalisadorSintatico {
 						return retorno;
 					
 					} else /* se nao erro */{ 
-						pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor() + " ' | linha ->" + valorEntrada.getNumLinha())));
+						pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor(), valorEntrada.getNumLinha())));
 						System.out.println(((Erros)pilhaErros.peek()).getMensagem());	
 						retorno.setHasError(true);
 						retorno.setErrorStack(pilhaErros);
@@ -202,7 +207,7 @@ public class AnalisadorSintatico {
 						return retorno;
 						
 					} else /* caso nao exista derivacao erro */{
-						pilhaErros.add((new Erros("ERRO-------> Não e permitido ' " + valorEntrada.getValor() + " ' | linha ->" + valorEntrada.getNumLinha())));
+						pilhaErros.add((new Erros("ERRO-------> Não e permitido ' " + valorEntrada.getValor(), valorEntrada.getNumLinha())));
 						System.out.println(((Erros)pilhaErros.peek()).getMensagem());
 						
 						retorno.setHasError(true);
