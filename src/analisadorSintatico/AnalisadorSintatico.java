@@ -4,8 +4,8 @@ import java.util.Stack;
 
 import analizadorLexico.Retorno;
 import analizadorLexico.SimbolosTerminais;
+import shared.Erros;
 import shared.Token;
-import view.Erros;
 
 public class AnalisadorSintatico {
 /*--------------------------------Variaveis de classe-----------------------------*/

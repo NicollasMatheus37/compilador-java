@@ -7,8 +7,8 @@ import java.io.StringReader;
 import java.text.Normalizer;
 import java.util.Stack;
 
+import shared.Erros;
 import shared.Token;
-import view.Erros;
 
 
 public class AnalizadorLexico {
@@ -103,21 +103,13 @@ public class AnalizadorLexico {
 				if(!isLiteral) {
 					//iniciacao de palavras
 					
-					// verificação de simbolos terminais
-					if((codigo = getSimbolosSecundarios(charAtual, charProx)) != 0) { //verifica se é simbolo composto
-						insertOnTokenStack(codigo, "" + charAtual + charProx, numLinha);
-						palavra = "";
-						i++;
-					} else if((codigo = getSimboloPrimario(charAtual)) != 0) { //verifica se é simbolo primario
-						insertOnTokenStack(codigo, "" + charAtual, numLinha);
-						palavra = "";
-					}
-					
 					//iniciado com simbolo '-' ou iniciado com número - isNumero = true;
 					if(charAtual == '-' && isNumero(charProx)) { //inicia bloco de numeros quando valor for simbolo '-'
 						isNumero = true;
-						palavra += charAtual + charProx;
+						palavra += charAtual + "" + charProx;
+						System.out.println(palavra);
 						i++;
+						continue;
 					}
 					if(isNumero(charAtual)) { //inicia bloco de numeros
 						isNumero = true;
@@ -145,6 +137,19 @@ public class AnalizadorLexico {
 						} catch(Exception e) {}
 						
 					}
+					
+					if(!isNumero) {
+						// verificação de simbolos terminais
+						if((codigo = getSimbolosSecundarios(charAtual, charProx)) != 0) { //verifica se é simbolo composto
+							insertOnTokenStack(codigo, "" + charAtual + charProx, numLinha);
+							palavra = "";
+							i++;
+						} else if((codigo = getSimboloPrimario(charAtual)) != 0) { //verifica se é simbolo primario
+							insertOnTokenStack(codigo, "" + charAtual, numLinha);
+							palavra = "";
+						}
+					}
+					
 					
 					if(!isNumero) { //nao e numero
 						// montagem de palavra

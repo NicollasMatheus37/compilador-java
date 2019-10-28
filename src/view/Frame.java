@@ -11,6 +11,7 @@ import analisadorSintatico.AnalisadorSintatico;
 import analizadorLexico.AnalizadorLexico;
 import analizadorLexico.ManipuladorArquivos;
 import analizadorLexico.Retorno;
+import shared.Erros;
 import shared.Token;
 
 import javax.swing.DefaultListModel;

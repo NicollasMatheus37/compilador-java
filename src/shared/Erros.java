@@ -1,4 +1,4 @@
-package view;
+package shared;
 
 public class Erros {
 
@@ -7,8 +7,8 @@ public class Erros {
 	private int linha;
 	
 	public Erros() {
-		super();
 	}
+	
 	public Erros(String mensagem, int linha) {
 		super();
 		this.mensagem = mensagem;

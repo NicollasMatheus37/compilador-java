@@ -2,8 +2,8 @@ package analizadorLexico;
 
 import java.util.Stack;
 
+import shared.Erros;
 import shared.Token;
-import view.Erros;
 
 public class Retorno {
 
