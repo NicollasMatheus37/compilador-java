@@ -22,6 +22,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
@@ -35,6 +38,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+
+import analisadorSemantico.Variable;
 
 public class Frame extends JFrame {
 
@@ -53,11 +58,12 @@ public class Frame extends JFrame {
 	private JButton btnStop;
 	private JButton btnDebug;
 	private JButton btnNext;
-	private JButton btnBack;
 	
 	private Stack<Stack> debugBackTokenStack = new Stack<Stack>();
 	private Stack<Stack> debugBackSintacStack = new Stack<Stack>();
+	private Stack<Map<String, Variable>> debugBackVariableStack =  new Stack<Map<String,Variable>>();
 	
+	private Map<String, Variable>  variableTable = new HashMap<String, Variable>();
 	private Stack<Token> sintaticStack = new Stack<Token>();
 	private Stack<Token> tokenStack;
 	private Stack<Erros> errorStack = new Stack<Erros>();
@@ -67,9 +73,12 @@ public class Frame extends JFrame {
 	private Retorno retorno;
 	private JTable tableTokens;
 	private JTable tableDeriv;
-	private DefaultTableModel modelToken, modelDeriv; 
+	private JTable tableVariaveis;
+	private DefaultTableModel modelToken, modelDeriv, modelVariaveis; 
 	private JScrollPane scrollPane;
 	private JLabel lblPilhaDeDerivaes;
+	
+	
 	
 	/**
 	 * Launch the application.
@@ -155,7 +164,7 @@ public class Frame extends JFrame {
 						
 						if(!errorStack.isEmpty()) {
 							Erros erros = errorStack.pop();
-							String erro = erros.getMensagem() + "    linha ->" + erros.getLinha();
+							String erro = erros.getMensagem() + ", linha " + erros.getLinha();
 							
 							consoleTextArea.setText(erro);
 						} else {
@@ -246,11 +255,11 @@ public class Frame extends JFrame {
 
 				debugBackSintacStack.clear();
 				debugBackTokenStack.clear();
+				debugBackVariableStack.clear();
 				consoleTextArea.setText("");
 				
 				btnCompilar.setEnabled(false);
 				btnDebug.setEnabled(false);
-				btnBack.setEnabled(true);
 				btnStop.setEnabled(true);
 				btnNext.setEnabled(true);
 				tokenStack = new Stack<Token>();
@@ -259,6 +268,7 @@ public class Frame extends JFrame {
 				sintaticStack.add(new Token(52,"PROGRAMA"));
 				lexico = new AnalizadorLexico();
 				sintatico = new AnalisadorSintatico();
+				variableTable = new HashMap<String, Variable>();
 				
 				if(!(areaDeCodigo.getText().isEmpty())) {
 					try {
@@ -269,12 +279,13 @@ public class Frame extends JFrame {
 						retorno.gethasError();
 						tokenStack = retorno.getTokenStack();
 						errorStack = retorno.getErrorStack();
+						variableTable = retorno.getVariableTable();
 						
 
 						
 						if(retorno.gethasError()) {
 							Erros erros = errorStack.pop();
-							String erro = erros.getMensagem() + erros.getLinha();
+							String erro = erros.getMensagem() + ", linha " + erros.getLinha();
 							
 							consoleTextArea.setText(erro);
 						} else {	
@@ -284,6 +295,7 @@ public class Frame extends JFrame {
 							
 							updateLexicTable(tempStack);
 							updateSintaticTable(sintaticStack);
+							updateSemanticTable(variableTable);
 						}
 						
 					} catch (FileNotFoundException e) {
@@ -302,34 +314,8 @@ public class Frame extends JFrame {
 			
 			}
 		});
-		btnDebug.setBounds(513, 5, 80, 23);
+		btnDebug.setBounds(563, 5, 80, 23);
 		contentPane.add(btnDebug);
-		
-		btnBack = new JButton("<");
-		btnBack.setBackground(SystemColor.menu);
-		btnBack.setEnabled(false);
-		btnBack.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			
-				if(!retorno.gethasError() && !(debugBackTokenStack.isEmpty())  && debugBackSintacStack.size() > 1) {	
-					
-					
-					Stack<Token> tempStack = debugBackTokenStack.pop();
-					Stack<Token> tempStack2 = debugBackSintacStack.pop();
-					
-					tokenStack = (Stack<Token>) tempStack.clone();
-					sintaticStack = (Stack<Token>) tempStack2.clone();
-
-					System.out.println(tokenStack.size());
-					
-					updateLexicTable(tempStack);
-					updateSintaticTable(tempStack2);
-				}
-			
-			}
-		});
-		btnBack.setBounds(603, 5, 41, 23);
-		contentPane.add(btnBack);
 		
 		btnStop = new JButton("||");
 		btnStop.setEnabled(false);
@@ -339,17 +325,19 @@ public class Frame extends JFrame {
 				consoleTextArea.setText("");
 				btnCompilar.setEnabled(true);
 				btnDebug.setEnabled(true);
-				btnBack.setEnabled(false);
 				btnStop.setEnabled(false);
 				btnNext.setEnabled(false);
 				
 				tokenStack.clear();
 				sintaticStack.clear();
+				variableTable = null;
 				debugBackSintacStack.clear();
 				debugBackTokenStack.clear();
+				debugBackVariableStack.clear();
 				consoleTextArea.setText("");
 				modelDeriv.setRowCount(0);
 				modelToken.setRowCount(0);
+				modelVariaveis.setRowCount(0);
 			}
 		});
 		btnStop.setBackground(SystemColor.menu);
@@ -363,22 +351,23 @@ public class Frame extends JFrame {
 					retorno = new Retorno();
 					debugBackTokenStack.push((Stack) tokenStack.clone());
 					debugBackSintacStack.push((Stack) sintaticStack.clone());
+					debugBackVariableStack.push(variableTable);
 					
 					retorno = sintatico.debugNext(tokenStack, sintaticStack);
 					
 				} else if(tokenStack.isEmpty() && sintaticStack.isEmpty()) {
 					consoleTextArea.setText("Compilado sem erros!!");
 					btnNext.setEnabled(false);
-					btnBack.setEnabled(false);
 				}
 				
+				variableTable = retorno.getVariableTable();
 				sintaticStack = retorno.getSintaticStack();
 				tokenStack = retorno.getNoRevertTokenStack();
 				errorStack = retorno.getErrorStack();
 				
 				if(retorno.gethasError()) {
 					Erros erros = errorStack.peek();
-					String erro = erros.getMensagem() + erros.getLinha();
+					String erro = erros.getMensagem()  + ", linha " + erros.getLinha();
 					
 					consoleTextArea.setText(erro);
 					btnNext.setEnabled(false);
@@ -387,6 +376,7 @@ public class Frame extends JFrame {
 					Stack tempStack = (Stack) tokenStack.clone();				
 					updateLexicTable(tempStack);
 					updateSintaticTable(sintaticStack);
+					updateSemanticTable(variableTable);
 				}
 			}
 		});
@@ -396,11 +386,12 @@ public class Frame extends JFrame {
 		contentPane.add(btnNext);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(756, 284, 293, 259);
+		scrollPane_1.setBounds(756, 356, 293, 187);
 		contentPane.add(scrollPane_1);
 		
 		String colunas[] = { "Codigo", "Valor" , "Linha" };
 		String colunasS[] = { "Codigo", "Valor" };
+		String colunasSs[] = { "Nome", "Tipo", "Categoria", "Nivel" };
 		
 		modelToken = new DefaultTableModel(null, colunas) {
 			public boolean isCellEditable(int row, int column) {
@@ -414,7 +405,7 @@ public class Frame extends JFrame {
 		scrollPane_1.setViewportView(tableTokens);
 		
 		scrollPane = new JScrollPane();
-		scrollPane.setBounds(756, 31, 293, 227);
+		scrollPane.setBounds(756, 145, 293, 196);
 		contentPane.add(scrollPane);
 		
 		modelDeriv= new DefaultTableModel(null, colunasS) {
@@ -427,12 +418,30 @@ public class Frame extends JFrame {
 		scrollPane.setViewportView(tableDeriv);
 		
 		JLabel lblPilhaDeTokens = new JLabel("Pilha de Tokens");
-		lblPilhaDeTokens.setBounds(861, 269, 188, 11);
+		lblPilhaDeTokens.setBounds(861, 344, 188, 11);
 		contentPane.add(lblPilhaDeTokens);
 		
 		lblPilhaDeDerivaes = new JLabel("Pilha de deriva\u00E7\u00F5es sintaticas");
-		lblPilhaDeDerivaes.setBounds(826, 10, 223, 14);
+		lblPilhaDeDerivaes.setBounds(826, 129, 223, 14);
 		contentPane.add(lblPilhaDeDerivaes);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(756, 35, 293, 90);
+		contentPane.add(scrollPane_2);
+		
+		modelVariaveis = new DefaultTableModel(null, colunasSs) {
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
+		
+		tableVariaveis = new JTable();
+		tableVariaveis.setModel(modelVariaveis);
+		scrollPane_2.setViewportView(tableVariaveis);
+		
+		JLabel lblTabelaSemanticaidentificadores = new JLabel("Tabela Semantica (identificadores)");
+		lblTabelaSemanticaidentificadores.setBounds(811, 10, 238, 14);
+		contentPane.add(lblTabelaSemanticaidentificadores);
 		
 	}
 	
@@ -460,5 +469,15 @@ public class Frame extends JFrame {
 			modelDeriv.addRow(new Object[] { token.getCodigo(), token.getValor() });
 			
 		}
+	}
+	
+	private void updateSemanticTable(Map<String, Variable> vars) { 
+		
+		modelVariaveis.setRowCount(0);
+		 
+		for (Variable var : vars.values()) {
+			modelVariaveis.addRow(new Object[] { var.getName(), var.getType(), var.getCategory(), var.getLevel() });
+		}
+			
 	}
 }

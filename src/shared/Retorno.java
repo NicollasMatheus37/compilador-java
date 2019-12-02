@@ -1,6 +1,10 @@
 package shared;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
+
+import analisadorSemantico.Variable;
 
 public class Retorno {
 
@@ -8,7 +12,16 @@ public class Retorno {
 	private Stack<Erros> errorStack;
 	private Stack<Token> tokenStack;
 	private Stack<Token> sintaticStack;
+	private Map<String, Variable>  variableTable = new HashMap<String, Variable>();
 	
+	public Map<String, Variable> getVariableTable() {
+		return variableTable;
+	}
+
+	public void setVariableTable(Map<String, Variable> variableTable) {
+		this.variableTable = variableTable;
+	}
+
 	public Stack<Token> getSintaticStack() {
 		return sintaticStack;
 	}

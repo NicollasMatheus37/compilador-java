@@ -201,11 +201,9 @@ public class AnalisadorSintatico {
 						}
 						
 						// caso encontre um comando ou expressão
-						if(valorSintatico.getCodigo() == 66 ||valorSintatico.getCodigo() == 77) {
+						if(valorSintatico.getCodigo() == 77) {
 							semanticAnalyser.setIsExpression(true);
 						}
-						
-						
 						
 						// retira token inicial e coleta sua derivacao
 						this.pilhaSintatica.pop();
@@ -255,7 +253,7 @@ public class AnalisadorSintatico {
 				
 			} catch (Exception e) {
 				
-				pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor(), valorEntrada.getNumLinha())));
+				pilhaErros.add((new Erros("Esperado(a): " + valorSintatico.getValor(), valorEntrada.getNumLinha())));
 
 				retorno.setHasError(true);
 				retorno.setErrorStack(pilhaErros);
@@ -289,15 +287,109 @@ public class AnalisadorSintatico {
 					
 					// se derivacao igual a token lexico remove ambos 
 					if(valorSintatico.getCodigo() == valorEntrada.getCodigo()) {
-						pilhaLexica.pop();
-						pilhaSintatica.pop();
+						Token lexItem = pilhaLexica.pop();
+						Token sintaticItem = pilhaSintatica.pop();
+						String response = new String();
 						
+						// casos da analise semantica
+						switch(sintaticItem.getCodigo()) {
+						
+							//caso encontre um identificador
+							case 25: 
+								
+								// se estiver declarando adiciona a tabela
+								if(semanticAnalyser.getIsStating()) {
+									semanticAnalyser.pushOnIdentifierStack(lexItem);	
+									
+								} else {
+									// se não verifica se existe na tabela
+									response = semanticAnalyser.searchOnIdentTable(valorEntrada.getValor());
+									verifyError(response, valorEntrada);
+								}
+								
+								break;
+							
+								//caso encontre o tipo integer/array
+							case 8: case 9: 
+								//adiciona os identificadores a tabela com o tipo encontrado
+								semanticAnalyser.setType(valorEntrada.getValor());
+								response = semanticAnalyser.anylize();
+								verifyError(response, valorEntrada);
+								break;
+							
+								//caso encontre um ';'
+							case 47:
+								// se estiver declarando adicioca os identificadores ja encontrados a tabela
+								if(semanticAnalyser.getIsStating()) {
+									response = semanticAnalyser.anylize();
+									verifyError(response, valorEntrada);
+								}
+								if(semanticAnalyser.getIsExpression()) {
+									response = semanticAnalyser.checkExpressionTypes();
+									verifyError(response, valorEntrada);
+								}
+
+								semanticAnalyser.setIsCallingProc(false);
+								semanticAnalyser.setIsExpression(false);
+								break;
+							
+								// caso encontre uma categoria
+							case 1: case 2: case 3: case 4: 
+								semanticAnalyser.setCategory(sintaticItem.getValor());
+								semanticAnalyser.setIsStating(true);
+								semanticAnalyser.setIsDefParam(false);
+
+								break;
+							
+								// caso encontre uma procedure
+							case 5: 
+								// salva a categoria e adiciona a table
+								semanticAnalyser.setCategory(sintaticItem.getValor());
+								semanticAnalyser.setType("PROCEDURE");
+								semanticAnalyser.setIsStating(true);
+								semanticAnalyser.pushOnIdentifierStack(pilhaLexica.peek());
+								
+								// salva key para manipular os parametros
+								semanticAnalyser.setLastProc((pilhaLexica.pop()).getValor());
+								response = semanticAnalyser.anylize();
+								semanticAnalyser.clearParameters();
+								semanticAnalyser.setLevel(1);
+								semanticAnalyser.setCategory("PARAMETER");
+								pilhaSintatica.pop();
+								semanticAnalyser.setIsDefParam(true);
+								verifyError(response, valorEntrada);
+								break;
+							
+								//caso encontre um 'end'
+							case 7:
+								semanticAnalyser.setLevel(0);
+								semanticAnalyser.deleteAllByLevel(1);
+								semanticAnalyser.clearParameters();
+								
+								break;
+								
+								// caso encontre um call
+							case 11:
+//								System.out.println((pilhaLexica.peek()).getValor());
+								
+								response = semanticAnalyser.searchOnIdentTable(pilhaLexica.peek().getValor());
+								verifyError(response, pilhaLexica.peek());
+								
+								if(!retorno.gethasError()) {
+									semanticAnalyser.setIsCallingProc(true);
+									semanticAnalyser.setLastProc((pilhaLexica.pop()).getValor());
+									pilhaSintatica.pop();
+								}
+								break;
+						}
+
+						retorno.setVariableTable(semanticAnalyser.getVariableTable());
 						retorno.setSintaticStack(pilhaSintatica);
 						retorno.setTokenStack(pilhaLexica);
 						return retorno;
 					
 					} else /* se nao erro */{ 
-						pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor(), valorEntrada.getNumLinha())));
+						pilhaErros.add((new Erros("Esperado(a): " + valorSintatico.getValor(), valorEntrada.getNumLinha())));
 						System.out.println(((Erros)pilhaErros.peek()).getMensagem());	
 						retorno.setHasError(true);
 						retorno.setErrorStack(pilhaErros);
@@ -309,6 +401,18 @@ public class AnalisadorSintatico {
 					
 					// se existir derivacao com os codigos do topo das pilhas sintatica e lexica
 					if(tabelaDerivacoes.containsKey(valorSintatico.getCodigo(), valorEntrada.getCodigo())) {
+						
+						// se entrar em um bloco ou corpo 
+						if(valorSintatico.getCodigo() == 64 || valorSintatico.getCodigo() == 53) {
+							System.out.println("toqui");
+							semanticAnalyser.setIsStating(false);
+							semanticAnalyser.clearParameters();
+						}
+						
+						// caso encontre um comando ou expressão
+						if(valorSintatico.getCodigo() == 77) {
+							semanticAnalyser.setIsExpression(true);
+						}
 						
 						// retira token inicial e coleta sua derivacao
 						this.pilhaSintatica.pop();
@@ -324,6 +428,7 @@ public class AnalisadorSintatico {
 						addPilhaSintatica(derivadas);
 						retorno.setTokenStack(pilhaSintatica);
 						retorno.setTokenStack(pilhaLexica);
+						retorno.setVariableTable(semanticAnalyser.getVariableTable());
 						return retorno;
 						
 					} else /* caso nao exista derivacao erro */{

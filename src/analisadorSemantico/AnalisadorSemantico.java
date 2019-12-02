@@ -1,6 +1,7 @@
 package analisadorSemantico;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Stack;
 
 import shared.Token;
@@ -177,5 +178,12 @@ public class AnalisadorSemantico {
 		
 		this.identifierStack.add(identifier);
 	}
+	
+
+	public Map<String, Variable> getVariableTable() {
+		return variableTable.getVariableTable();
+	}
+
+
 	
 }

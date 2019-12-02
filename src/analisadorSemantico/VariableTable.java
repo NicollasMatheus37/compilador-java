@@ -9,6 +9,10 @@ public class VariableTable {
 
 	private Map<String, Variable>  variableTable = new HashMap<String, Variable>();
 	
+	public Map<String, Variable> getVariableTable() {
+		return variableTable;
+	}
+
 	public String add(Variable variable,Integer level) {
 		if(containsVariable(variable.getName(), level)) {
 			return "ERRO";
