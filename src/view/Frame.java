@@ -10,8 +10,8 @@ import javax.swing.border.EmptyBorder;
 import analisadorSintatico.AnalisadorSintatico;
 import analizadorLexico.AnalizadorLexico;
 import analizadorLexico.ManipuladorArquivos;
-import analizadorLexico.Retorno;
 import shared.Erros;
+import shared.Retorno;
 import shared.Token;
 
 import javax.swing.DefaultListModel;

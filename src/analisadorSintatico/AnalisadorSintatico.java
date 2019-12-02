@@ -2,9 +2,10 @@ package analisadorSintatico;
 
 import java.util.Stack;
 
-import analizadorLexico.Retorno;
+import analisadorSemantico.AnalisadorSemantico;
 import analizadorLexico.SimbolosTerminais;
 import shared.Erros;
+import shared.Retorno;
 import shared.Token;
 
 public class AnalisadorSintatico {
@@ -20,8 +21,11 @@ public class AnalisadorSintatico {
 	private Stack<Erros> pilhaErros = new Stack<Erros>();
 	private Stack<Token> pilhaLexica = new Stack<Token>();
 	private Stack<Token> pilhaSintatica = new Stack<Token>();
-
-/*------------------------------------Metodos--------------------------------------*/
+	
+	//-------------------------------
+	private AnalisadorSemantico semanticAnalyser = new AnalisadorSemantico();
+	
+	/*------------------------------------Metodos--------------------------------------*/
 	
 	/* funcao responsavel pela analise sintatica */ 
 	public Retorno analiseSintatica(Stack<Token> tokenStack) {
@@ -42,12 +46,12 @@ public class AnalisadorSintatico {
 				
 			} catch (Exception e) {
 				
-				pilhaErros.add((new Erros("ERRO----> Esperado(a)" + valorSintatico.getValor(), valorEntrada.getNumLinha())));
+				pilhaErros.add((new Erros("sperado(a)" + valorSintatico.getValor(), valorEntrada.getNumLinha())));
 				retorno.setErrorStack(pilhaErros);
 				break;
 			}
 			
-			System.out.println(valorEntrada.getValor() + "-----" + valorSintatico.getValor());
+//			System.out.println(valorEntrada.getValor() + "-----" + valorSintatico.getValor());
 		
 			//se valor inicial atribui primeiira derivação sintatica
 			if((valorSintatico.getCodigo() == 52) && (valorEntrada.getCodigo() == 1)) {
@@ -73,11 +77,111 @@ public class AnalisadorSintatico {
 					
 					// se derivacao igual a token lexico remove ambos 
 					if(valorSintatico.getCodigo() == valorEntrada.getCodigo()) {
-						pilhaLexica.pop();
-						pilhaSintatica.pop();
+						Token lexItem = pilhaLexica.pop();
+						Token sintaticItem = pilhaSintatica.pop();
+						String response = new String();
+						
+						// casos da analise semantica
+						switch(sintaticItem.getCodigo()) {
+						
+							//caso encontre um identificador
+							case 25: 
+								
+								// se estiver declarando adiciona a tabela
+								if(semanticAnalyser.getIsStating()) {
+									semanticAnalyser.pushOnIdentifierStack(lexItem);	
+									
+								} else {
+									// se não verifica se existe na tabela
+									response = semanticAnalyser.searchOnIdentTable(valorEntrada.getValor());
+									verifyError(response, valorEntrada);
+								}
+								
+								break;
+							
+								//caso encontre o tipo integer/array
+							case 8: case 9: 
+								//adiciona os identificadores a tabela com o tipo encontrado
+								semanticAnalyser.setType(valorEntrada.getValor());
+								response = semanticAnalyser.anylize();
+								verifyError(response, valorEntrada);
+								break;
+							
+								//caso encontre um ';'
+							case 47:
+								// se estiver declarando adicioca os identificadores ja encontrados a tabela
+								if(semanticAnalyser.getIsStating()) {
+									response = semanticAnalyser.anylize();
+									verifyError(response, valorEntrada);
+								}
+								if(semanticAnalyser.getIsExpression()) {
+									response = semanticAnalyser.checkExpressionTypes();
+									verifyError(response, valorEntrada);
+								}
+
+								semanticAnalyser.setIsCallingProc(false);
+								semanticAnalyser.setIsExpression(false);
+								break;
+							
+								// caso encontre uma categoria
+							case 1: case 2: case 3: case 4: 
+								semanticAnalyser.setCategory(sintaticItem.getValor());
+								semanticAnalyser.setIsStating(true);
+								semanticAnalyser.setIsDefParam(false);
+
+								break;
+							
+								// caso encontre uma procedure
+							case 5: 
+								// salva a categoria e adiciona a table
+								semanticAnalyser.setCategory(sintaticItem.getValor());
+								semanticAnalyser.setType("PROCEDURE");
+								semanticAnalyser.setIsStating(true);
+								semanticAnalyser.pushOnIdentifierStack(pilhaLexica.peek());
+								
+								// salva key para manipular os parametros
+								semanticAnalyser.setLastProc((pilhaLexica.pop()).getValor());
+								response = semanticAnalyser.anylize();
+								semanticAnalyser.clearParameters();
+								semanticAnalyser.setLevel(1);
+								semanticAnalyser.setCategory("PARAMETER");
+								pilhaSintatica.pop();
+								semanticAnalyser.setIsDefParam(true);
+								verifyError(response, valorEntrada);
+								break;
+							
+								//caso encontre um 'end'
+							case 7:
+								semanticAnalyser.setLevel(0);
+								semanticAnalyser.deleteAllByLevel(1);
+								semanticAnalyser.clearParameters();
+								
+								break;
+								
+								// caso encontre um call
+							case 11:
+//								System.out.println((pilhaLexica.peek()).getValor());
+								
+								response = semanticAnalyser.searchOnIdentTable(pilhaLexica.peek().getValor());
+								verifyError(response, pilhaLexica.peek());
+								
+								if(!retorno.gethasError()) {
+									semanticAnalyser.setIsCallingProc(true);
+									semanticAnalyser.setLastProc((pilhaLexica.pop()).getValor());
+									pilhaSintatica.pop();
+								}
+								break;
+						}
+
+						// se ouver erro semantico
+						if(retorno.gethasError()) {
+//							pilhaErros.add((new Erros(response, valorEntrada.getNumLinha())));
+							break;
+							
+						}
 						
 					} else /* se nao erro */{ 
-						pilhaErros.add((new Erros("ERRO----> Esperado(a) ' " + valorSintatico.getValor(), valorEntrada.getNumLinha())));
+						pilhaErros.add((new Erros("valor inesperado", valorEntrada.getNumLinha())));
 						retorno.setErrorStack(pilhaErros);
 						System.out.println(((Erros)pilhaErros.peek()).getMensagem());	
 						break;
@@ -88,6 +192,20 @@ public class AnalisadorSintatico {
 					
 					// se existir derivacao com os codigos do topo das pilhas sintatica e lexica
 					if(tabelaDerivacoes.containsKey(valorSintatico.getCodigo(), valorEntrada.getCodigo())) {
+						
+						// se entrar em um bloco ou corpo 
+						if(valorSintatico.getCodigo() == 64 || valorSintatico.getCodigo() == 53) {
+							System.out.println("toqui");
+							semanticAnalyser.setIsStating(false);
+							semanticAnalyser.clearParameters();
+						}
+						
+						// caso encontre um comando ou expressão
+						if(valorSintatico.getCodigo() == 66 ||valorSintatico.getCodigo() == 77) {
+							semanticAnalyser.setIsExpression(true);
+						}
+						
+						
 						
 						// retira token inicial e coleta sua derivacao
 						this.pilhaSintatica.pop();
@@ -100,11 +218,13 @@ public class AnalisadorSintatico {
 							}
 						}
 						
+
+						
 						addPilhaSintatica(derivadas);
 						derivadas.clear();
 						
 					} else /* caso nao exista derivacao erro */{
-						pilhaErros.add((new Erros("ERRO-------> Não e permitido ' " + valorEntrada.getValor(), valorEntrada.getNumLinha())));
+						pilhaErros.add((new Erros("derivação inexistente", valorEntrada.getNumLinha())));
 						retorno.setErrorStack(pilhaErros);
 						System.out.println(((Erros)pilhaErros.peek()).getMensagem());
 						break;
@@ -207,7 +327,7 @@ public class AnalisadorSintatico {
 						return retorno;
 						
 					} else /* caso nao exista derivacao erro */{
-						pilhaErros.add((new Erros("ERRO-------> Não e permitido ' " + valorEntrada.getValor(), valorEntrada.getNumLinha())));
+						pilhaErros.add((new Erros("inesperado: " + valorEntrada.getValor(), valorEntrada.getNumLinha())));
 						System.out.println(((Erros)pilhaErros.peek()).getMensagem());
 						
 						retorno.setHasError(true);
@@ -242,4 +362,12 @@ public class AnalisadorSintatico {
 			return new Token(codigo, deriv);
 		}
 	}	
+	
+	private void verifyError(String response,Token valorEntrada) {
+		if(!response.equals("")) {
+			pilhaErros.add(new Erros(response, valorEntrada.getNumLinha()));
+			retorno.setErrorStack(pilhaErros);
+			retorno.setHasError(true);
+		}	
+	}
 }

@@ -1,9 +1,6 @@
-package analizadorLexico;
+package shared;
 
 import java.util.Stack;
-
-import shared.Erros;
-import shared.Token;
 
 public class Retorno {
 
